@@ -1,0 +1,54 @@
+{
+    "variables": {
+        "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+        "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+        "region":         "us-west-2"
+    },
+    "builders": [
+        {
+            "access_key": "{{user `aws_access_key`}}",
+            "ami_name": "packer-ubuntu1804-aws-kube-{{timestamp}}",
+            "instance_type": "t2.medium",
+            "region": "{{user `region`}}",
+            "secret_key": "{{user `aws_secret_key`}}",
+            "source_ami_filter": {
+              "filters": {
+              "virtualization-type": "hvm",
+              "name": "ubuntu/images/*ubuntu-bionic-18.04-amd64-server-*",
+              "root-device-type": "ebs"
+              },
+              "owners": ["099720109477"],
+              "most_recent": true
+            },
+            "ssh_username": "ubuntu",
+            "type": "amazon-ebs"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "./install-kube.sh"
+        },
+        {
+            "type": "file",
+            "source": "./daemon.json",
+            "destination": "daemon.json"
+        },
+        {
+            "type": "file",
+            "source": "../cilium-install.yaml",
+            "destination": "cilium.yaml"
+        },
+        {
+            "type": "file",
+            "source": "../cloudeos-cilium.yaml",
+            "destination": "cloudeos.yaml"
+        },
+        {
+            "type": "shell",
+            "inline": [
+              "sudo cp daemon.json /etc/docker"
+            ]
+        }
+      ]
+}

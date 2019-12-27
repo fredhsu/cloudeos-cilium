@@ -1,0 +1,56 @@
+{
+  "builders": [{
+    "type": "azure-arm",
+
+    "client_id": "41cb502c-4292-4cc8-a4df-f04c72660c1e",
+    "client_secret": "11e70949-4a53-45dd-94e7-7fced8539882",
+    "tenant_id": "a286e73c-9709-4e12-b4af-036437a828a9",
+    "subscription_id": "ba0583bb-4130-4d7b-bfe4-0c7597857323",
+
+    "managed_image_resource_group_name": "Fred-Packer",
+    "managed_image_name": "kubeNodeImage",
+
+    "os_type": "Linux",
+    "image_publisher": "Canonical",
+    "image_offer": "UbuntuServer",
+    "image_sku": "16.04-LTS",
+
+    "azure_tags": {
+        "dept": "Product Mgmt",
+        "task": "kube demo"
+    },
+
+    "location": "West US 2",
+    "vm_size": "Standard_DS2_v2"
+  }],
+  "provisioners": [{
+    "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+    "inline": [
+      "apt-get update",
+			"apt-get upgrade -y",
+			"apt-get -y install docker.io",
+			"apt-get update",
+			"apt-get install apt-transport-https ca-certificates curl software-properties-common",
+			"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -",
+			"add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
+			"apt-get update && apt-get install docker-ce=18.06.0~ce~3-0~ubuntu",
+			"cat > /etc/docker/daemon.json <<EOF",
+			"{",
+			"\"exec-opts\": [\"native.cgroupdriver=systemd\"],",
+				"\"log-driver\": \"json-file\",",
+				"\"log-opts\": {",
+					"\"max-size\": \"100m\"",
+				"},",
+				"\"storage-driver\": \"overlay2\"",
+			"}",
+			"EOF",
+			"mkdir -p /etc/systemd/system/docker.service.d",
+			"systemctl daemon-reload",
+			"systemctl restart docker",
+			"curl -s https://gist.githubusercontent.com/fredhsu/7c96ba5ac52031ce21b761aec199db6d/raw/bb292e5c2980841acb60e2698a0aeecf83345187/install-kubeadm.sh | bash",
+			"/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+		],
+		"inline_shebang": "/bin/sh -x",
+		"type": "shell"
+	}]
+}

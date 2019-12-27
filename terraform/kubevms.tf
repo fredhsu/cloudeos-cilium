@@ -1,3 +1,13 @@
+terraform {
+  backend "remote" {
+    organization = "aristanetworks"
+
+    workspaces {
+      name = "cloudeos-cilium"
+    }
+  }
+}
+
 locals {
   subnet_id = "subnet-09a396454b18c6683"
   key_name = "cilium-test-kp"

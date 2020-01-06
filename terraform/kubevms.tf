@@ -42,8 +42,8 @@ kubectl annotate node ip-10-20-2-22 arista/bgp-peer-ip-1="10.20.2.10"
 kubectl annotate node ip-10-20-2-21 arista/bgp-local-as="65130"
 kubectl annotate node ip-10-20-2-22 arista/bgp-local-as="65130"
 kubectl taint nodes --all node-role.kubernetes.io/master-
-kubectl apply -f cilium.yaml
-kubectl apply -f cloudeos.yaml
+kubectl apply -f /home/ubuntu/cilium.yaml
+kubectl apply -f /home/ubuntu/cloudeos.yaml
 
 EOF
 
@@ -55,7 +55,8 @@ sudo kubeadm join --token maay98.cujupw1teh7ftuyh --discovery-token-unsafe-skip-
 
 provider "aws" {
   region = "us-west-2"
-  shared_credentials_file = "/Users/fredlhsu/.aws/creds"
+  # Commenting out ot use env var instead
+  # shared_credentials_file = "/Users/fredlhsu/.aws/creds"
 }
 
 data "local_file" "kube_master_user_data" {
@@ -139,14 +140,14 @@ resource "aws_instance" "cloudeos-node-1" {
 
 resource "aws_route" "node1-route" {
   route_table_id            = "rtb-99e4dae1"
-  destination_cidr_block    = "10.227.0.0/24"
+  destination_cidr_block    = "10.217.0.0/24"
   instance_id = "${aws_instance.kube-node-1.id}"
   depends_on                = ["aws_instance.kube-node-1"]
 }
 
 resource "aws_route" "node2-route" {
   route_table_id            = "rtb-99e4dae1"
-  destination_cidr_block    = "10.227.1.0/24"
+  destination_cidr_block    = "10.217.1.0/24"
   instance_id = "${aws_instance.kube-node-2.id}"
   depends_on                = ["aws_instance.kube-node-2"]
 }

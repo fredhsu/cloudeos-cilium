@@ -36,12 +36,12 @@
         },
         {
             "type": "file",
-            "source": "../cilium-install.yaml",
+            "source": "../kubernetes/cilium-install.yaml",
             "destination": "cilium.yaml"
         },
         {
             "type": "file",
-            "source": "../cloudeos-cilium.yaml",
+            "source": "../kubernetes/cloudeos-cilium.yaml",
             "destination": "cloudeos.yaml"
         },
         {
